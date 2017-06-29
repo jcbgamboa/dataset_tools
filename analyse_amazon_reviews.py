@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 
 import spacy
 
+import glob
+import os
 import sys
 sys.path.append('.')
 import sentiment_analyser.sentiment_analyser as sa
@@ -26,6 +28,7 @@ statistics = {
 	"n_positive_reviews": 0,
 	"n_negative_reviews": 0,
 
+	# English words
 	# Maximizers
 	"absolutely": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
 	"completely": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
@@ -62,34 +65,70 @@ statistics = {
 	"really": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
 	"super": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
 	"surprisingly": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+
+
+	# German words
+	"sehr" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"wirklich" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"ziemlich" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"absolut" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"extrem" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"komplett" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"total" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"etwas" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"kaum" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]],
+	"zu" : [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+
 }
 
-def generate_statistics(file_name, nlp, batch_size=8192):
+def generate_statistics(file_name, nlp, input_several_files=False, batch_size=8192):
 	curr_batch = 0
 
 	# This works for the English dataset, but doesn't work for the
 	# German reviews (which are separated in files).
-	with open(file_name, 'r') as f:
-		while True:
-			print("Parsing batch {}".format(curr_batch))
-			curr_batch += 1
+	if not input_several_files:
+		with open(file_name, 'r') as f:
+			while True:
+				print("Parsing batch {}".format(curr_batch))
+				curr_batch += 1
 
-			next_n_lines = list(islice(f, batch_size))
-			if not next_n_lines:
-				break
+				next_n_lines = list(islice(f, batch_size))
+				if not next_n_lines:
+					break
 
-			for line in next_n_lines:
-				data = json.loads(line)
-				review_text = data['reviewText']
-				review_polarity = data['overall']
-				statistics['n_reviews'] += 1
-				if review_polarity in [4, 5]:
-					statistics['n_positive_reviews'] += 1
-				elif review_polarity in [1, 2]:
-					statistics['n_negative_reviews'] += 1
+				for line in next_n_lines:
+					data = json.loads(line)
+					review_text = data['reviewText']
+					review_polarity = data['overall']
+					statistics['n_reviews'] += 1
+					if review_polarity in [4, 5]:
+						statistics['n_positive_reviews'] += 1
+					elif review_polarity in [1, 2]:
+						statistics['n_negative_reviews'] += 1
 
-				calculate_statistics(review_text, nlp,
-							review_polarity)
+					calculate_statistics(review_text, nlp,
+								review_polarity)
+	else:
+		# Get all files from folder
+		# Iterate through file
+		# For each review in file
+		#   calculate_statistics
+		for i in glob.glob(os.path.join(file_name, "*.json")):
+			print ("Parsing file {}".format(i))
+			with open(i, 'r', encoding='utf-8') as f:
+				json_str = f.read()
+				data = json.loads(json_str)
+				for j in data:
+					review_text = j['review_text']
+					review_polarity = int(j['review_rating'])
+					statistics['n_reviews'] += 1
+					if review_polarity in [4, 5]:
+						statistics['n_positive_reviews'] += 1
+					elif review_polarity in [1, 2]:
+						statistics['n_negative_reviews'] += 1
+
+					calculate_statistics(review_text, nlp,
+								review_polarity)
 
 def calculate_statistics(sentence, nlp, review_polarity):
 	doc = nlp(sentence)
@@ -98,7 +137,7 @@ def calculate_statistics(sentence, nlp, review_polarity):
 		statistics['n_sentences'] += 1
 		for token in sentence:
 			if token.lemma_ in statistics and \
-			    token.lemma_ != "n_sentences":
+				token.lemma_ != "n_sentences":
 				get_curr_token_statistics(token, review_polarity)
 
 def get_left_token(token):
@@ -173,7 +212,7 @@ def format_data_to_plot(data, order, plot_type=0):
 
 	return (pos_next, neg_next, pos_head, neg_head)
 
-def produce_graphics(data, plot_type_str='all'):
+def produce_graphics(data, plot_type_str='all', language='en'):
 	plot_type_map = {
 		'all': 0,
 		'positive': 1,
@@ -181,33 +220,49 @@ def produce_graphics(data, plot_type_str='all'):
 	}
 	plot_type = plot_type_map[plot_type_str]
 
-	order = ('absolutely',
-		 'completely',
-		 'perfectly',
-		 'totally',
-		 'entirely',
-		 'utterly',
-		 'almost',
-		 'very',
-		 'terribly',
-		 'extremely',
-		 'most',
-		 'awfully',
-		 'jolly',
-		 'highly',
-		 'frightfully',
-		 'quite',
-		 'rather',
-		 'pretty',
-		 'fairly',
-		 'little',
-		 'slightly',
-		 'somewhat',
-		 'really',
-		 'super',
-		 'surprisingly',
-		)
-	n_groups = 25
+	if language == 'en':
+		order = ('absolutely',
+			 'completely',
+			 'perfectly',
+			 'totally',
+			 'entirely',
+			 'utterly',
+			 'almost',
+			 'very',
+			 'terribly',
+			 'extremely',
+			 'most',
+			 'awfully',
+			 'jolly',
+			 'highly',
+			 'frightfully',
+			 'quite',
+			 'rather',
+			 'pretty',
+			 'fairly',
+			 'little',
+			 'slightly',
+			 'somewhat',
+			 'really',
+			 'super',
+			 'surprisingly',
+			)
+		n_groups = 25
+	elif language == 'de':
+		order = (
+			 'absolut',
+			 'etwas',
+			 'extrem',
+			 'kaum',
+			 'komplett',
+			 'sehr',
+			 'total',
+			 'wirklich',
+			 'ziemlich',
+			 'zu',
+			)
+		n_groups = 10
+
 	positive_next, negative_next, positive_head, negative_head = \
 				format_data_to_plot(data, order, plot_type)
 
@@ -248,13 +303,14 @@ def produce_graphics(data, plot_type_str='all'):
 	
 	plt.title('Coocurrences of ' + plot_type_str + ' words with Intensifiers')
 
-	plt.show()
+	#plt.show()
 	plt.savefig('plotted_results_{}.pdf'.format(plot_type_str),
 			format='pdf')
 
 def parse_command_line():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("input", help="input file name.")
+	parser.add_argument("language", help="input language ('en' or 'de').")
 	parser.add_argument("--only_plot",
 		help="If false, then `input` contains the dataset. The " +
 			"statistics will be calculated and stored in " +
@@ -263,6 +319,10 @@ def parse_command_line():
 			"If true, then the input contains " +
 			"the file with values already counted. In that case, " +
 			"only `plotted_results.pdf` will be created. ",
+		default=False, action="store_true")
+	parser.add_argument("--input_several_files",
+		help="If true, then the input is a folder and the program " +
+			" will read all files in the folder.",
 		default=False, action="store_true")
 
 	return parser.parse_args()
@@ -273,9 +333,9 @@ def main():
 	global statistics
 	if not args.only_plot:
 		print("Loading spacy...")
-		nlp = spacy.load('en')
+		nlp = spacy.load(args.language)
 		print("Parsing file...")
-		generate_statistics(args.input, nlp)
+		generate_statistics(args.input, nlp, args.input_several_files)
 
 		with open('statistics.json', 'w') as fp:
 			json.dump(statistics, fp)
@@ -283,9 +343,9 @@ def main():
 		with open(args.input, 'r') as fp:
 			statistics = json.load(fp)
 
-	produce_graphics(statistics, 'all')
-	produce_graphics(statistics, 'positive')
-	produce_graphics(statistics, 'negative')
+	produce_graphics(statistics, 'all', language=args.language)
+	produce_graphics(statistics, 'positive', language=args.language)
+	produce_graphics(statistics, 'negative', language=args.language)
 
 if __name__ == '__main__':
 	main()
