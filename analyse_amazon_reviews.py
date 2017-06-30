@@ -108,6 +108,9 @@ def generate_statistics(file_name, nlp, input_several_files=False, batch_size=81
 
 					calculate_statistics(review_text, nlp,
 								review_polarity)
+
+					del review_text, review_polarity, data
+				del next_n_lines
 	else:
 		# Get all files from folder
 		# Iterate through file
@@ -130,6 +133,10 @@ def generate_statistics(file_name, nlp, input_several_files=False, batch_size=81
 					calculate_statistics(review_text, nlp,
 								review_polarity)
 
+					del review_text, review_polarity
+
+				del json_str, data
+
 def calculate_statistics(sentence, nlp, review_polarity):
 	doc = nlp(sentence)
 	doc = sa.add_sentiment_hook(doc, nlp.lang, consider_modifiers=False)
@@ -139,6 +146,8 @@ def calculate_statistics(sentence, nlp, review_polarity):
 			if token.lemma_ in statistics and \
 				token.lemma_ != "n_sentences":
 				get_curr_token_statistics(token, review_polarity)
+	del doc
+
 
 def get_left_token(token):
 	if token.i == 0:
