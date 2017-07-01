@@ -14,6 +14,8 @@ import sys
 sys.path.append('.')
 import sentiment_analyser.sentiment_analyser as sa
 
+output_file_name = 'statistics.json'
+
 # List of intensifiers based on "Degree modifiers of adjectives in spoken
 # British English" (Carita Paradis, 1997)
 # https://lup.lub.lu.se/search/ws/files/4923802/1590143.pdf
@@ -111,13 +113,18 @@ def generate_statistics(file_name, nlp, input_several_files=False, batch_size=81
 
 					del review_text, review_polarity, data
 				del next_n_lines
+
+				if curr_batch % 100 == 0:
+					with open(output_file_name, 'w') as fp:
+						json.dump(statistics, fp)
 	else:
-		# Get all files from folder
-		# Iterate through file
-		# For each review in file
-		#   calculate_statistics
 		for i in glob.glob(os.path.join(file_name, "*.json")):
 			print ("Parsing file {}".format(i))
+			curr_batch += 1
+			if curr_batch % 100 == 0:
+				with open(output_file_name, 'w') as fp:
+					json.dump(statistics, fp)
+
 			with open(i, 'r', encoding='utf-8') as f:
 				json_str = f.read()
 				data = json.loads(json_str)
@@ -310,7 +317,7 @@ def produce_graphics(data, plot_type_str='all', language='en'):
 	plt.tight_layout()
 
 	
-	plt.title('Coocurrences of ' + plot_type_str + ' words with Intensifiers')
+	plt.title('Coocurrences with Intensifiers in ' + plot_type_str + ' reviews')
 
 	#plt.show()
 	plt.savefig('plotted_results_{}.pdf'.format(plot_type_str),
@@ -346,7 +353,7 @@ def main():
 		print("Parsing file...")
 		generate_statistics(args.input, nlp, args.input_several_files)
 
-		with open('statistics.json', 'w') as fp:
+		with open(output_file_name, 'w') as fp:
 			json.dump(statistics, fp)
 	else:
 		with open(args.input, 'r') as fp:
