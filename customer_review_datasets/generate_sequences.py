@@ -53,11 +53,11 @@ def get_ground_truth_tag(word, aspects):
 	#if re.match('[%&"~;]', word):
 	#	return 'O'
 
-	print("Word: ", word)
+	#print("Word: ", word)
 	#word_doc = nlp(word)
 	for i in aspects:
 		aspect_doc = nlp(i.strip())
-		print((word, aspect_doc))
+		#print((word, aspect_doc))
 		if len(aspect_doc) == 0:
 			return 'O'
 		elif word.lemma_ == aspect_doc[0].lemma_:
@@ -106,26 +106,25 @@ def main(in_file, out_file, generate_parse_trees=False, use_senticnet=False):
 
 	#sentences = []
 	#ground_truths = []
-	sentences_file = os.path.basename(out_file) + '.in'
-	ground_truths_file = os.path.basename(out_file) + '.gt'
+	sentences_file = os.path.join(out_file) + '.in'
+	ground_truths_file = os.path.join(out_file) + '.gt'
 	with open(sentences_file, 'w') as fi, open(ground_truths_file, 'w') as fo:
 		for i in zip(aspects, sentences):
 			aspects_list = i[0]
 			sentence = i[1].strip()
-			print("Sentence: ", sentence)
+			#print("Sentence: ", sentence)
 			curr_ground_truth = generate_ground_truth_sequence(sentence, aspects_list)
 			#sentences.append(sentence)
 			#ground_truths.append(curr_ground_truth)
 			if generate_parse_trees:
 				doc = nlp(sentence)
-				print('"' + str(doc) + '"')
+				#print('"' + str(doc) + '"')
 				parse_tree_list = get_parse_trees.parse(doc)
 				sentence = ' '.join(parse_tree_list)
 			fi.write(sentence + '\n')
 			fo.write(curr_ground_truth + '\n')
 
-
-if __name__ == "__main__":
+def parse_args():
 	#in_file = sys.argv[1]
 	#out_file = sys.argv[2]
 	parser = argparse.ArgumentParser()
@@ -135,8 +134,10 @@ if __name__ == "__main__":
 			    help='an integer for the accumulator')
 	parser.add_argument("--generate_parse_trees", action="store_true", default=False)
 	parser.add_argument("--use_senticnet", action="store_true", default=False)
-	args = parser.parse_args()
+	return parser.parse_args()
 
+if __name__ == "__main__":
+	args = parse_args()
 	main(args.in_file, args.out_file, args.generate_parse_trees, args.use_senticnet)
 
 	#text = get_sentence_and_aspects("remote control[-2]##one bad thing though , i find the remote-control a bit flimsy and i predict it will most probably ' die ' before the player does .")
