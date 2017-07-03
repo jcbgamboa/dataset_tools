@@ -1,3 +1,19 @@
+# Counts the occurrences of certains words in the dataset available in
+# http://jmcauley.ucsd.edu/data/amazon/
+# containing amazon reviews.
+#
+# The dataset is a JSON file containing one review per line.
+#
+# The code iterates through all reviews, counting the occurence of
+# intensifying words such as "very" or "really", as well as their
+# cooccurrence with along with "positive" and "negative" words.
+# To know if a word is positive or negative, the code uses the
+# `sentiment_analyser` module.
+#
+# (currently, the `sentiment_analyser` module always returns 0, so
+# the code is not specially useful; but one can use it as a
+# boilerplate for defining any function.
+
 from itertools import islice
 import json
 
