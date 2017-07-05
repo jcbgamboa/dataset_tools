@@ -83,8 +83,8 @@ for i in "${!folder_names[@]}"; do
 		cat output/$i/${i}_cross${j}/dev/*.in > output/$i/${i}_cross${j}/dev/sources.txt
 		cat output/$i/${i}_cross${j}/test/*.in > output/$i/${i}_cross${j}/test/sources.txt
 
-		cat output/$i/${i}_cross${j}/train/*.gt > output/$i/${i}_cross${j}/test/targets.txt
-		cat output/$i/${i}_cross${j}/dev/*.gt > output/$i/${i}_cross${j}/test/targets.txt
+		cat output/$i/${i}_cross${j}/train/*.gt > output/$i/${i}_cross${j}/train/targets.txt
+		cat output/$i/${i}_cross${j}/dev/*.gt > output/$i/${i}_cross${j}/dev/targets.txt
 		cat output/$i/${i}_cross${j}/test/*.gt > output/$i/${i}_cross${j}/test/targets.txt
 	done
 done
