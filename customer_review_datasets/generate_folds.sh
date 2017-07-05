@@ -86,6 +86,13 @@ for i in "${!folder_names[@]}"; do
 		cat output/$i/${i}_cross${j}/train/*.gt > output/$i/${i}_cross${j}/train/targets.txt
 		cat output/$i/${i}_cross${j}/dev/*.gt > output/$i/${i}_cross${j}/dev/targets.txt
 		cat output/$i/${i}_cross${j}/test/*.gt > output/$i/${i}_cross${j}/test/targets.txt
+
+		# Last but not least, generate the vocabularies
+		python create_vocabulary.py output/$i/${i}_cross${j}/train/sources.txt --min_count=2 > output/$i/${i}_cross${j}/train/vocab.sources.txt
+
+		echo "O"    > output/$i/${i}_cross${j}/train/vocab.targets.txt
+		echo "B-A" >> output/$i/${i}_cross${j}/train/vocab.targets.txt
+		echo "I-A" >> output/$i/${i}_cross${j}/train/vocab.targets.txt
 	done
 done
 
