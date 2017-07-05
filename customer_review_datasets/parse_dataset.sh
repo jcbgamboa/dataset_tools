@@ -2,7 +2,7 @@
 # https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 
 function usage {
-	echo "Usage: ./create_folds.sh [OPTS] in_folder out_folder"
+	echo "Usage: ./parse_dataset.sh [OPTS] in_folder out_folder"
 	echo ""
 	echo "    in_folder: the folder containing the 5 products."
 	echo "    out_folder: the folder to be created with all the folds."
