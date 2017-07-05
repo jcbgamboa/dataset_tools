@@ -10,14 +10,14 @@ def get_parse_tree(root, lemmatize=False):
 	ret = []
 	for i in root.lefts:
 		ret.append('[' + i.dep_)
-		ret += get_parse_tree(i)
+		ret += get_parse_tree(i, lemmatize)
 		ret.append(']' + i.dep_)
 
 	ret.append(root.lemma_ if lemmatize else root.text)
 
 	for i in root.rights:
 		ret.append('[' + i.dep_)
-		ret += get_parse_tree(i)
+		ret += get_parse_tree(i, lemmatize)
 		ret.append(']' + i.dep_)
 
 	return ret
