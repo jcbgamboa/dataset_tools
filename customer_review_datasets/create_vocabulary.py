@@ -36,3 +36,10 @@ def main():
 if __name__ == "__main__":
 	main()
 
+# Command line to just count words in a file:
+#
+# Taken from:
+# https://unix.stackexchange.com/questions/39039/get-text-file-word-occurrence-count-of-all-words-print-output-sorted
+#
+# cat $1 | tr '[:space:]' '[\n*]' | grep -v "^\s*$" | sort | uniq -c | sort -bnr
+#
