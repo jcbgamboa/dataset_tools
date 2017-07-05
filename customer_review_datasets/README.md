@@ -4,7 +4,8 @@ The tools here are made to process the dataset available in
 https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html
 (specifically, the annotated 5 Products dataset)
 
-#Available tools:
+Available tools:
+================
 
 ## `generate_folds.sh`
 
