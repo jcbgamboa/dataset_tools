@@ -99,7 +99,8 @@ def parse_file(f):
 
 	return file_aspects, file_sentences
 
-def main(in_file, out_file, generate_parse_trees=False, use_senticnet=False):
+def main(in_file, out_file, generate_parse_trees=False, use_senticnet=False,
+		lemmatize=False):
 	# Open file
 	with open(in_file, 'r') as f:
 		aspects, sentences = parse_file(f)
@@ -119,8 +120,15 @@ def main(in_file, out_file, generate_parse_trees=False, use_senticnet=False):
 			if generate_parse_trees:
 				doc = nlp(sentence)
 				#print('"' + str(doc) + '"')
-				parse_tree_list = get_parse_trees.parse(doc)
+				parse_tree_list = get_parse_trees.parse(doc, lemmatize)
 				sentence = ' '.join(parse_tree_list)
+			elif lemmatize:
+				doc = nlp(sentence)
+				sentence = doc[0].lemma_
+				for i in doc[1:]:
+					if len(i) == 0:
+						continue
+					sentence += ' ' + i.lemma_
 			fi.write(sentence + '\n')
 			fo.write(curr_ground_truth + '\n')
 
@@ -134,11 +142,13 @@ def parse_args():
 			    help='an integer for the accumulator')
 	parser.add_argument("--generate_parse_trees", action="store_true", default=False)
 	parser.add_argument("--use_senticnet", action="store_true", default=False)
+	parser.add_argument("--lemmatize", action="store_true", default=False)
 	return parser.parse_args()
 
 if __name__ == "__main__":
 	args = parse_args()
-	main(args.in_file, args.out_file, args.generate_parse_trees, args.use_senticnet)
+	main(args.in_file, args.out_file, args.generate_parse_trees,
+		args.use_senticnet, args.lemmatize)
 
 	#text = get_sentence_and_aspects("remote control[-2]##one bad thing though , i find the remote-control a bit flimsy and i predict it will most probably ' die ' before the player does .")
 	#text = generate_ground_truth_sequence('The remote control is bad', ['remote control'])

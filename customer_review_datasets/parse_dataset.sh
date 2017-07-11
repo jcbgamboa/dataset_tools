@@ -2,12 +2,14 @@
 # https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
 
 function usage {
-	echo "Usage: ./create_folds.sh [OPTS] in_folder out_folder"
+	echo "Usage: ./parse_dataset.sh [OPTS] in_folder out_folder"
 	echo ""
 	echo "    in_folder: the folder containing the 5 products."
 	echo "    out_folder: the folder to be created with all the folds."
 	echo ""
 	echo "    OPTS:"
+	echo "    -l: lemmatize each word in the dataset"
+	echo "    -t: output parse trees instead of just the sentences"
 	echo "    -v: verbose"
 	echo "    -h: show this help"
 }
@@ -20,14 +22,20 @@ fi
 # Reset in case getopts has been used previously in the shell.
 OPTIND=1
 verbose=0
+lemmatize=0
+generate_parse_trees=0
 
-while getopts "h?vf:" opt; do
+while getopts "h?vlt" opt; do
     case "$opt" in
     h|\?)
         usage
         exit 0
         ;;
     v)  verbose=1
+        ;;
+    l)  lemmatize=1
+        ;;
+    t)  generate_parse_trees=1
         ;;
     esac
 done
@@ -37,12 +45,23 @@ shift $((OPTIND-1))
 # After this, we expect exactly two input options: the `in_folder` and the
 # `out_folder` options. If there is anything else, we show usage and quit.
 if [ $# -ne 2 ]; then
+	echo "ERROR: OPTS must precede positional arguments"
 	usage
 	exit 0
 fi
 
 in_folder=$1
 out_folder=$2
+
+CMD_OPTS=''
+
+if [ ${lemmatize} -eq 1 ]; then
+	CMD_OPTS+=' --lemmatize'
+fi
+
+if [ ${generate_parse_trees} -eq 1 ]; then
+	CMD_OPTS+=' --generate_parse_trees'
+fi
 
 if [ ${verbose} -eq 1 ]; then
 	set -x
@@ -67,7 +86,7 @@ for i in "${!dataset_files[@]}"; do
 	# "The POSIX standard mandates that multiple / are treated as a
 	# single / in a file name. Thus //dir///subdir////file is the same
 	# as /dir/subdir/file."
-	python generate_sequences.py "${in_folder}/${i}" "${out_folder}/${dataset_files[$i]}"
+	python generate_sequences.py "${in_folder}/${i}" "${out_folder}/${dataset_files[$i]}" ${CMD_OPTS}
 done
 
 
