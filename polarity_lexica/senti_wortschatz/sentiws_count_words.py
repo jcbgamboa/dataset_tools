@@ -11,7 +11,6 @@
 #
 
 import argparse
-import sys
 import csv
 
 def main(args):
@@ -26,8 +25,11 @@ def main(args):
 		for i in words.keys():
 			for j in words[i]:
 				string = i
-				pos = descriptions[j][1]
+				pos = get_pos(descriptions[j])
 				f.write(string + ',' + pos + '\n')
+
+def get_pos(description):
+	return description[1]
 
 def parse_sentiws(in_file):
 	words = {}
