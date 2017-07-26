@@ -11,7 +11,7 @@ def main(args):
 	intersection = [val for val in file1 if val in file2]
 	with open('intersection.txt', 'w', encoding='utf-8') as f:
 		for i in intersection:
-			f.write(str(i) + '\n')
+			f.write(','.join(i) + '\n')
 
 def read_file(file_name):
 	ret = []
