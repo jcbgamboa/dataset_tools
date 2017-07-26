@@ -27,7 +27,10 @@ def main(args):
 				row.append(get_pos(words[i]))
 
 			if args.include_polarity:
-				row.append(get_polarity(words[i]))
+				polarity = get_polarity(words[i], args.use_binary_polarity)
+				if args.exclude_hifens and polarity == '-':
+					continue
+				row.append(polarity)
 
 			f.write(','.join(row) + '\n')
 
@@ -37,7 +40,21 @@ def main(args):
 	#		pos = get_pos(words[i])
 	#		f.write(string + ',' + pos + '\n')
 
-def get_polarity(description):
+def get_polarity_binaries(description):
+	positivity = int(description[3])
+	negativity = int(description[4])
+	neutrality = int(description[5])
+
+	if positivity == 0 and negativity == 0 and neutrality == 0:
+		return '-'
+
+	polarity = positivity - negativity
+	return str(polarity)
+
+def get_polarity(description, use_binary_polarity=False):
+	if use_binary_polarity:
+		return get_polarity_binaries(description)
+
 	positivity = float(description[6]) if description[6] != '-' else None
 	negativity = float(description[7]) if description[7] != '-' else None
 
@@ -79,6 +96,8 @@ def parse_args():
 			help='The file whose words are to be counted')
 	parser.add_argument("--include_pos", action="store_true", default=False)
 	parser.add_argument("--include_polarity", action="store_true", default=False)
+	parser.add_argument("--use_binary_polarity", action="store_true", default=False)
+	parser.add_argument("--exclude_hifens", action="store_true", default=False)
 	return parser.parse_args()
 
 if __name__ == '__main__':
