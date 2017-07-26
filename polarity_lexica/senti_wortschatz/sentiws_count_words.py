@@ -17,16 +17,25 @@ def main(args):
 	words, descriptions = parse_sentiws(args.in_file)
 
 	# Dumps the output
-	with open('sentiws_strings.txt', 'w', encoding='utf-8') as f:
-		for i in words.keys():
-			f.write(i + '\n')
+	#with open('sentiws_strings.txt', 'w', encoding='utf-8') as f:
+	#	for i in words.keys():
+	#		f.write(i + '\n')
 
-	with open('sentiws_string_and_pos.txt', 'w', encoding='utf-8') as f:
+	with open(args.out_file, 'w', encoding='utf-8') as f:
 		for i in words.keys():
 			for j in words[i]:
-				string = i
-				pos = get_pos(descriptions[j])
-				f.write(string + ',' + pos + '\n')
+				row = [i]
+
+				if args.include_pos:
+					row.append(get_pos(descriptions[j]))
+
+				if args.include_polarity:
+					row.append(get_polarity(descriptions[j]))
+
+				f.write(','.join(row) + '\n')
+
+def get_polarity(description):
+	return description[2]
 
 def get_pos(description):
 	return description[1]
@@ -49,7 +58,6 @@ def parse_row(row, words, descriptions):
 	if len(row) == 3:
 		inflections = row[2].split(',')
 	inflections.append(word)
-	print (inflections)
 
 	descriptions.append((word, pos, polarity, inflections))
 
@@ -64,6 +72,10 @@ def parse_args():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('in_file', metavar='in_file', type=str,
 			help='The file whose words are to be counted')
+	parser.add_argument('out_file', metavar='out_file', type=str,
+			help='The file whose words are to be counted')
+	parser.add_argument("--include_pos", action="store_true", default=False)
+	parser.add_argument("--include_polarity", action="store_true", default=False)
 	return parser.parse_args()
 
 if __name__ == '__main__':

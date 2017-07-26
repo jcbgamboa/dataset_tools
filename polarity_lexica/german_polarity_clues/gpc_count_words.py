@@ -19,15 +19,33 @@ import csv
 def main(args):
 	words, descriptions = parse_german_polarity_clues(args.in_file)
 
-	with open('gpc_strings.txt', 'w', encoding='utf-8') as f:
+	with open(args.out_file, 'w', encoding='utf-8') as f:
 		for i in words.keys():
-			f.write(i + '\n')
+			row = [i]
 
-	with open('gpc_string_and_pos.txt', 'w', encoding='utf-8') as f:
-		for i in words.keys():
-			string = i
-			pos = get_pos(words[i])
-			f.write(string + ',' + pos + '\n')
+			if args.include_pos:
+				row.append(get_pos(words[i]))
+
+			if args.include_polarity:
+				row.append(get_polarity(words[i]))
+
+			f.write(','.join(row) + '\n')
+
+	#with open('gpc_string_and_pos.txt', 'w', encoding='utf-8') as f:
+	#	for i in words.keys():
+	#		string = i
+	#		pos = get_pos(words[i])
+	#		f.write(string + ',' + pos + '\n')
+
+def get_polarity(description):
+	positivity = float(description[6]) if description[6] != '-' else None
+	negativity = float(description[7]) if description[7] != '-' else None
+
+	polarity = '-'
+	if (positivity is not None and negativity is not None):
+		polarity = positivity - negativity
+
+	return str(polarity)
 
 def get_pos(description):
 	pos = description[2]
@@ -57,6 +75,10 @@ def parse_args():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('in_file', metavar='in_file', type=str,
 			help='The file whose words are to be counted')
+	parser.add_argument('out_file', metavar='out_file', type=str,
+			help='The file whose words are to be counted')
+	parser.add_argument("--include_pos", action="store_true", default=False)
+	parser.add_argument("--include_polarity", action="store_true", default=False)
 	return parser.parse_args()
 
 if __name__ == '__main__':
