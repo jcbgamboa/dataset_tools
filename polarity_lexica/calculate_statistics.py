@@ -20,11 +20,13 @@ def create_histogram(polarities, dataset_name, outfile):
 	plt.title('Histogram{}{}'.format(
 		'' if dataset_name == '' else ': ',
 		dataset_name))
+
 	plt.savefig('{}.pdf'.format(outfile), format='pdf')
 
 def dump_mean(polarities, outfile):
 	with open('{}.txt'.format(outfile), 'w', encoding='utf-8') as f:
 		f.write(str(polarities.mean()) + '\n')
+		f.write(str(polarities.std()) + '\n')
 
 def parse_args():
 	parser = argparse.ArgumentParser()
