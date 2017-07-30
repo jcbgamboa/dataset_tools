@@ -26,10 +26,11 @@ def main(args):
 			if args.include_pos:
 				row.append(get_pos(words[i]))
 
+			polarity = get_polarity(words[i], args.use_binary_polarity)
+			if args.exclude_hifens and polarity == '-':
+				continue
+
 			if args.include_polarity:
-				polarity = get_polarity(words[i], args.use_binary_polarity)
-				if args.exclude_hifens and polarity == '-':
-					continue
 				row.append(polarity)
 
 			f.write(','.join(row) + '\n')
@@ -41,14 +42,19 @@ def main(args):
 	#		f.write(string + ',' + pos + '\n')
 
 def get_polarity_binaries(description):
-	positivity = int(description[3])
-	negativity = int(description[4])
-	neutrality = int(description[5])
+	# The `float()` conversion is because `int()` doesn't accept things
+	# like '0.04' -- and this appears in the SentiSpin
+	positivity = int(float(description[3]))
+	negativity = int(float(description[4]))
+	neutrality = int(float(description[5]))
 
 	if positivity == 0 and negativity == 0 and neutrality == 0:
 		return '-'
 
 	polarity = positivity - negativity
+	if abs(polarity) > 1:
+		return '-'
+
 	return str(polarity)
 
 def get_polarity(description, use_binary_polarity=False):
