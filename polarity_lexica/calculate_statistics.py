@@ -21,6 +21,9 @@ def create_histogram(polarities, dataset_name, outfile):
 		'' if dataset_name == '' else ': ',
 		dataset_name))
 
+	plt.xlabel("Polarity bins")
+	plt.ylabel("Number of words")
+
 	plt.savefig('{}.pdf'.format(outfile), format='pdf')
 
 def dump_mean(polarities, outfile):

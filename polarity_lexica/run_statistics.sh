@@ -159,13 +159,13 @@ $PYTHON german_polarity_clues/gpc_count_words.py german_polarity_clues/GermanSen
 STATISTICS=$RESULTS/statistics
 mkdir $STATISTICS
 
-$PYTHON calculate_statistics.py $POLARITIES/sentiws_words_polarity.txt $STATISTICS/sws_polarities
+$PYTHON calculate_statistics.py $POLARITIES/sentiws_words_polarity.txt $STATISTICS/sws_polarities --dataset_name="Senti Wortschatz"
 
-$PYTHON calculate_statistics.py $POLARITIES/gpc_words_pos_remove_missing_polarity.txt $STATISTICS/gpc_polarities
+$PYTHON calculate_statistics.py $POLARITIES/gpc_words_pos_remove_missing_polarity.txt $STATISTICS/gpc_polarities --dataset_name="German Polarity Clues (Continuous Polarities)"
 
-$PYTHON calculate_statistics.py $POLARITIES/gpc_words_pos_remove_missing_binary_polarity.txt $STATISTICS/gpc_polarities_binary
+$PYTHON calculate_statistics.py $POLARITIES/gpc_words_pos_remove_missing_binary_polarity.txt $STATISTICS/gpc_polarities_binary --dataset_name="German Polarity Clues (Binary Polarities)"
 
-$PYTHON calculate_statistics.py $POLARITIES/gss_words_pos_remove_missing_polarity.txt $STATISTICS/gss_polarities
+$PYTHON calculate_statistics.py $POLARITIES/gss_words_pos_remove_missing_polarity.txt $STATISTICS/gss_polarities --dataset_name="German SentiSpin (Continuous Polarities)"
 
-$PYTHON calculate_statistics.py $POLARITIES/gss_words_pos_remove_missing_binary_polarity.txt $STATISTICS/gss_polarities_binary
+$PYTHON calculate_statistics.py $POLARITIES/gss_words_pos_remove_missing_binary_polarity.txt $STATISTICS/gss_polarities_binary --dataset_name="German SentiSpin (Binary Polarities)"
 
