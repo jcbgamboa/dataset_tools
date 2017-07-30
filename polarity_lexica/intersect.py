@@ -6,7 +6,7 @@ def main(args):
 	infile2 = read_file(args.infile2)
 
 	intersection = [val for val in infile1 if val in infile2]
-	with open('intersection.txt', 'w', encoding='utf-8') as f:
+	with open(args.outfile, 'w', encoding='utf-8') as f:
 		for i in intersection:
 			f.write(','.join(i) + '\n')
 
