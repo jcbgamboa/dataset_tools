@@ -40,7 +40,7 @@ def generate_n_grams(review_text, out_src, out_tgt, nlp,
 			n_grams_generator = find_ngrams(words, j)
 			for k in n_grams_generator:
 				texts = [k.text for k in k]
-				out_src.write(''.join(texts) + '\n')
+				out_src.write(re.sub('\s+', ' ', ' '.join(' '.join(texts))) + '\n')
 				out_tgt.write(' '.join(texts) + '\n')
 
 def run_generate_n_grams(in_file, out_file, nlp, capitalize, batch_size=8192,
