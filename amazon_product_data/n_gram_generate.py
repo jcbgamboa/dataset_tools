@@ -13,7 +13,7 @@ def find_ngrams(input_list, n):
 
 
 def generate_n_grams(review_text, out_src, out_tgt, nlp,
-			n_min, n_max, capitalize):
+			n_min, n_max, capitalize, target_char_seq):
 	doc = nlp(review_text)
 	doc_sentences = (doc.sents)
 
@@ -40,10 +40,15 @@ def generate_n_grams(review_text, out_src, out_tgt, nlp,
 			n_grams_generator = find_ngrams(words, j)
 			for k in n_grams_generator:
 				texts = [k.text for k in k]
-				out_src.write(''.join(texts) + '\n')
-				out_tgt.write(' '.join(texts) + '\n')
+				out_src.write(re.sub('\s+', ' ', ' '.join(' '.join(texts))) + '\n')
+				if target_char_seq:
+					spaces_replaced_by_special_char = re.sub(' ', '|', ' '.join(texts))
+					out_tgt.write(' '.join(spaces_replaced_by_special_char) + '\n')
+				else:
+					out_tgt.write(' '.join(texts) + '\n')
 
-def run_generate_n_grams(in_file, out_file, nlp, capitalize, batch_size=8192,
+def run_generate_n_grams(in_file, out_file, nlp, capitalize, target_char_seq,
+			batch_size=8192,
 			n_min=2, n_max=6):
 	curr_batch = 0
 
@@ -63,7 +68,7 @@ def run_generate_n_grams(in_file, out_file, nlp, capitalize, batch_size=8192,
 
 				generate_n_grams(review_text, g, h,
 						nlp, n_min, n_max,
-						capitalize)
+						capitalize, target_char_seq)
 
 				del review_text, data
 			del next_n_lines
@@ -78,6 +83,9 @@ def parse_command_line():
 	parser.add_argument("out_file", help="input file name.")
 	parser.add_argument("language", help="input language ('en' or 'de').")
 
+	parser.add_argument("--target_char_seq", type=bool, default=False,
+				help="input language ('en' or 'de').")
+
 	parser.add_argument("--capitalize",
 		help="Change capitalization of the first letter of each " +
 			"word in the n-gram. If 'lowercase', then all words in " +
@@ -91,7 +99,7 @@ def main():
 
 	nlp = spacy.load(args.language)
 	run_generate_n_grams(args.in_file, args.out_file, nlp,
-				args.capitalize)
+				args.capitalize, args.target_char_seq)
 
 if __name__ == '__main__':
 	main()
