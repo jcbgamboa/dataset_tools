@@ -318,8 +318,8 @@ def calculate_similarities(word, nlp):
 def generate_histogram(word, all_similarities):
     plt.gcf().clear()
     histogram_values = np.array(all_similarities)
-    plt.hist(histogram_values, bins=10)  # arguments are passed to np.histogram
-    plt.title("Similarities between {} and most common English N and A".format(
+    plt.hist(histogram_values, bins=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+    plt.title("".format(
                 word))
     plt.savefig('similarities_to_{}.pdf'.format(word),
                 format='pdf')
