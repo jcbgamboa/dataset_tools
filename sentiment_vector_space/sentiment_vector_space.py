@@ -298,19 +298,26 @@ other_words = [
     'typical',
 ]
 
+def calculate_similarity(doc1, doc2, sim_type='cosine'):
+    if sim_type == 'cosine':
+        return doc1.similarity(doc2)
+    if sim_type == 'euclidean':
+        return 1 / (1 + np.linalg.norm(doc1.vector - doc2.vector))
+    return -1
+
 
 def calculate_similarities(word, nlp):
     doc = nlp(word)
     all_similarities = []
     for i in other_words:
         i_doc = nlp(i)
-        i_similarity = doc.similarity(i_doc)
+        i_similarity = calculate_similarity(doc, i_doc, sim_type='euclidean')
         all_similarities.append(i_similarity)
 
     target_similarities = []
     for i in target_words:
         i_doc = nlp(i)
-        i_similarity = doc.similarity(i_doc)
+        i_similarity = calculate_similarity(doc, i_doc, sim_type='euclidean')
         target_similarities.append(i_similarity)
 
     return all_similarities, target_similarities
@@ -318,9 +325,9 @@ def calculate_similarities(word, nlp):
 def generate_histogram(word, all_similarities):
     plt.gcf().clear()
     histogram_values = np.array(all_similarities)
-    plt.hist(histogram_values, bins=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
-    plt.title("".format(
-                word))
+    plt.hist(histogram_values, bins=np.arange(0.08, 0.23, 0.01))
+    #plt.title("{}".format(
+    #            word[0].upper() + word[1:]))
     plt.savefig('similarities_to_{}.pdf'.format(word),
                 format='pdf')
 
